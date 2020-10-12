@@ -5,12 +5,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static java.lang.Math.pow;
+
 public class MainFrame extends JFrame {
 	private static final int WIDTH = 400;
 	private static final int HEIGHT = 320;
 
 	private int formula_id = 1;
-	private int memory_id = 1;
+	private int memory_id = 0;
 
 	private ButtonGroup formula_buttons = new ButtonGroup();
 	private Box formula_box;
@@ -26,10 +28,11 @@ public class MainFrame extends JFrame {
 	}
 
 	double formula1(double x, double y,  double z){
-		return x + y + z;
+		return Math.sin(Math.log(y) + Math.sin(Math.PI*y*y) )*Math.pow(x*x + Math.sin(z) + Math.exp(Math.cos(z)), 1/4);
 	}
 	double formula2(double x, double y, double z){
-		return x*y*z;
+		return Math.pow(Math.cos(Math.exp(x)) + Math.log(1 + y)*Math.log(1 + y) + Math.sqrt(Math.exp(Math.cos(x))) +
+				Math.sin(Math.PI*z)*Math.sin(Math.PI*z) + Math.sqrt(1/x) + Math.cos(y)*Math.cos(y), Math.sin(z));
 	}
 
 	private Box memory_display_box;
@@ -48,6 +51,7 @@ public class MainFrame extends JFrame {
 
 	public MainFrame() {
 		super("Calculation");
+
 		setSize(WIDTH, HEIGHT);
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		setLocation((kit.getScreenSize().width - WIDTH)/2, (kit.getScreenSize().height - HEIGHT)/2);
@@ -94,7 +98,8 @@ public class MainFrame extends JFrame {
 					}
 					result_field.setText(String.valueOf(result));
 				} catch(NumberFormatException ex) {
-					System.out.println("Are you durak?");
+					JOptionPane.showMessageDialog(MainFrame.this, "Error", "Wrong number format",
+							JOptionPane.WARNING_MESSAGE);
 				}
 			}
 		});
@@ -110,23 +115,32 @@ public class MainFrame extends JFrame {
 		calculate_box.add(calculate_button);
 		calculate_box.add(reset_button);
 
-		JRadioButton memory_button_1 = addChooseMemoryButton(1);
-		JRadioButton memory_button_2 = addChooseMemoryButton(2);
-		JRadioButton memory_button_3 = addChooseMemoryButton(3);
+		JRadioButton[] memory_buttons_list = {addChooseMemoryButton(0), addChooseMemoryButton(1),
+				addChooseMemoryButton(2)};
 		choose_memory_buttons.setSelected(choose_memory_buttons.getElements().nextElement().getModel(), true);
 
 		JButton memory_add = new JButton("M+");
 		memory_add.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double memory = Double.parseDouble(memory_button_1.getText());
-				memory += Double.parseDouble(result_field.getText());
-				memory_button_1.setText(String.valueOf(memory));
+				try {
+					double memory = Double.parseDouble(memory_buttons_list[memory_id].getText());
+					double result = Double.parseDouble(result_field.getText());
+					if(Double.isNaN(result)){ throw new IllegalArgumentException("NaN is not addable"); }
+					memory += result;
+					memory_buttons_list[memory_id].setText(String.valueOf(memory));
+				} catch(NumberFormatException ex){
+					JOptionPane.showMessageDialog(MainFrame.this, "Wrong number format", "Error",
+							JOptionPane.WARNING_MESSAGE);
+				} catch(IllegalArgumentException ex){
+					JOptionPane.showMessageDialog(MainFrame.this, ex.getMessage(), "Error",
+							JOptionPane.WARNING_MESSAGE);
+				}
 			}
 		});
 		JButton memory_clear = new JButton("MC");
 		memory_clear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				memory_button_1.setText("0.0");
+				memory_buttons_list[memory_id].setText("0.0");
 			}
 		});
 		memory_control_box.add(memory_add);
@@ -135,12 +149,14 @@ public class MainFrame extends JFrame {
 
 		left_panel_box.add(memory_display_box);
 		left_panel_box.add(memory_control_box);
-		right_panel_box.add(Box.createVerticalGlue());
+		//right_panel_box.add(Box.createVerticalGlue());
 		right_panel_box.add(formula_box);
 		right_panel_box.add(variable_box);
 		right_panel_box.add(calculate_box);
 		right_panel_box.add(Box.createVerticalGlue());
+		left_panel_box.setBorder(BorderFactory.createLineBorder(Color.RED));
 		content_box.add(left_panel_box);
+		content_box.add(Box.createHorizontalStrut(30));
 		content_box.add(right_panel_box);
 		getContentPane().add(content_box, BorderLayout.CENTER);
 	}
