@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
 import static java.lang.Math.pow;
 
 public class MainFrame extends JFrame {
-	private static final int WIDTH = 400;
+	private static final int WIDTH = 520;
 	private static final int HEIGHT = 320;
 
 	private int formula_id = 1;
@@ -16,11 +16,19 @@ public class MainFrame extends JFrame {
 
 	private ButtonGroup formula_buttons = new ButtonGroup();
 	private Box formula_box;
+	private ImageIcon formula1_image;
+	private ImageIcon formula2_image;
+	private JLabel formula_label;
 	private void addFormulaButton(String button_name, final int id){
 		JRadioButton button = new JRadioButton(button_name);
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				MainFrame.this.formula_id = id;
+				if(id == 1) {
+					formula_label.setIcon(formula1_image);
+				} else if (id == 2){
+					formula_label.setIcon(formula2_image);
+				}
 			}
 		});
 		formula_buttons.add(button);
@@ -56,9 +64,11 @@ public class MainFrame extends JFrame {
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		setLocation((kit.getScreenSize().width - WIDTH)/2, (kit.getScreenSize().height - HEIGHT)/2);
 
-		Box content_box = Box.createHorizontalBox();
-		Box right_panel_box = Box.createVerticalBox();
-		Box left_panel_box = Box.createVerticalBox();
+		Box content_box = Box.createVerticalBox();
+		Box bottom_panel_box = Box.createHorizontalBox();
+		Box top_panel_box = Box.createHorizontalBox();
+		Box bottom_right_panel_box = Box.createVerticalBox();
+		Box bottom_left_panel_box = Box.createVerticalBox();
 		memory_display_box = Box.createVerticalBox();
 		Box memory_control_box = Box.createHorizontalBox();
 		formula_box = Box.createVerticalBox();
@@ -68,6 +78,10 @@ public class MainFrame extends JFrame {
 		addFormulaButton("formula 1", 1);
 		addFormulaButton("formula 2", 2);
 		formula_buttons.setSelected(formula_buttons.getElements().nextElement().getModel(), true);
+		formula1_image = new ImageIcon("formula1.png");
+		formula2_image = new ImageIcon("formula2.png");
+		formula_label = new JLabel("", formula1_image, JLabel.CENTER);
+		formula_box.add(formula_label);
 
 		JTextField x_field = new JTextField("0", 5);
 		x_field.setMaximumSize(x_field.getPreferredSize());
@@ -78,9 +92,13 @@ public class MainFrame extends JFrame {
 		JLabel result_field = new JLabel("0.0");
 		variable_box.add(Box.createVerticalGlue());
 		variable_box.add(x_field);
+		variable_box.add(Box.createHorizontalStrut(5));
 		variable_box.add(y_field);
+		variable_box.add(Box.createHorizontalStrut(5));
 		variable_box.add(z_field);
+		variable_box.add(Box.createHorizontalStrut(10));
 		variable_box.add(result_field);
+		variable_box.add(Box.createHorizontalGlue());
 		//variable_box.add(Box.createVerticalGlue());
 
 		JButton calculate_button = new JButton("Calculate");
@@ -114,6 +132,7 @@ public class MainFrame extends JFrame {
 		});
 		calculate_box.add(calculate_button);
 		calculate_box.add(reset_button);
+		calculate_box.add(Box.createHorizontalGlue());
 
 		JRadioButton[] memory_buttons_list = {addChooseMemoryButton(0), addChooseMemoryButton(1),
 				addChooseMemoryButton(2)};
@@ -146,18 +165,24 @@ public class MainFrame extends JFrame {
 		memory_control_box.add(memory_add);
 		memory_control_box.add(memory_clear);
 
-
-		left_panel_box.add(memory_display_box);
-		left_panel_box.add(memory_control_box);
-		//right_panel_box.add(Box.createVerticalGlue());
-		right_panel_box.add(formula_box);
-		right_panel_box.add(variable_box);
-		right_panel_box.add(calculate_box);
-		right_panel_box.add(Box.createVerticalGlue());
-		left_panel_box.setBorder(BorderFactory.createLineBorder(Color.RED));
-		content_box.add(left_panel_box);
-		content_box.add(Box.createHorizontalStrut(30));
-		content_box.add(right_panel_box);
+		//TOP BOX
+		top_panel_box.add(formula_box);
+		top_panel_box.add(Box.createHorizontalGlue());
+		//BOTTOM BOX
+		bottom_left_panel_box.add(memory_display_box);
+		bottom_left_panel_box.add(memory_control_box);
+		bottom_left_panel_box.add(Box.createVerticalGlue());
+		bottom_right_panel_box.add(variable_box);
+		bottom_right_panel_box.add(calculate_box);
+		bottom_right_panel_box.add(Box.createVerticalGlue());
+		bottom_panel_box.add(bottom_left_panel_box);
+		bottom_panel_box.add(Box.createHorizontalStrut(30));
+		bottom_panel_box.add(bottom_right_panel_box);
+		//CONTENT BOX
+		content_box.add(top_panel_box);
+		content_box.add(Box.createVerticalStrut(30));
+		content_box.add(bottom_panel_box);
+		content_box.add(Box.createVerticalGlue());
 		getContentPane().add(content_box, BorderLayout.CENTER);
 	}
 
